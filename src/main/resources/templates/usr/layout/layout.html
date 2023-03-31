@@ -1,17 +1,12 @@
 <html>
-
 <head>
-
     <meta charset="UTF-8">
     <meta name="viewport"
           content="width=device-width, user-scalable=no, initial-scale=1.0, maximum-scale=1.0, minimum-scale=1.0">
     <meta http-equiv="X-UA-Compatible" content="ie=edge">
-
     <script src="https://cdnjs.cloudflare.com/ajax/libs/jquery/3.6.4/jquery.min.js"></script>
-
     <script src="https://cdnjs.cloudflare.com/ajax/libs/toastr.js/2.1.4/toastr.min.js"></script>
     <link rel="stylesheet" href="https://jhs512.github.io/toastr/toastr.css">
-
     <script>
         toastr.options = {
             closeButton: true,
@@ -30,16 +25,13 @@
             showMethod: "fadeIn",
             hideMethod: "fadeOut"
         };
-
         function toastNotice(msg) {
             toastr["success"](msg, "알림");
         }
-
         function toastWarning(msg) {
             toastr["warning"](msg, "알림");
         }
     </script>
-
     <style>
         @font-face {
             font-family: 'GmarketSansMedium';
@@ -47,29 +39,28 @@
             font-weight: normal;
             font-style: normal;
         }
-
         html > body {
             font-family: "GmarketSansMedium";
             text-underline-position: under;
         }
     </style>
-
 </head>
-
 <body>
-
 <link href="https://cdn.jsdelivr.net/npm/daisyui@2.51.5/dist/full.css" rel="stylesheet" type="text/css"/>
 <script src="https://cdn.tailwindcss.com"></script>
 
 <header>
+    <a href="/" class="btn btn-link">메인</a>
     <a href="/member/login" sec:authorize="isAnonymous()" class="btn btn-link">로그인</a>
     <a href="/member/join" sec:authorize="isAnonymous()" class="btn btn-link">회원가입</a>
+    <a href="/member/me" sec:authorize="isAuthenticated()" class="btn btn-link">내 정보</a>
     <a href="javascript:;" sec:authorize="isAuthenticated()" onclick="$(this).next().submit();" class="btn btn-link">로그아웃</a>
-    <form th:action="|/member/logout|" method="POST"></form>
+    <form sec:authorize="isAuthenticated()" hidden th:action="|/member/logout|" method="POST"></form>
+    <span sec:authorize="isAuthenticated()" th:text="|${#authentication.principal.username}님 환영합니다.|"></span>
+    <span sec:authorize="isAuthenticated()">당신의 회원번호는 [[${loginedMember.id}]]번입니다.</span>
+    <span sec:authorize="isAuthenticated()">당신은 [[${loginedMember.createDate}]]에 가입하셨습니다.</span>
 </header>
 
 <main layout:fragment="main"></main>
-
 </body>
-
 </html>

@@ -62,10 +62,17 @@ public class MemberControllerTests {
                         """.stripIndent().trim())));
     }
 
+    /*
+    * 회원가입 폼으로 회원가입 폼처리를 함. 그렇다면 필요한 데이터는?
+    *  - csrf 키(우리가 신경 안써도 됨)
+    *  - username
+    *  - password
+    *  post /member/join 테스트를 하기 위해 위의 3가지 값을 사용해서 요청을 보냄
+    * */
     @Test
-    @Rollback(value = false)    //DB에 흔적이 남는다
+    //@Rollback(value = false)    //DB에 흔적이 남는다, 확인하고 다시 주석처리
     @DisplayName("회원가입")
-    void t2() throws Exception {
+    void t002() throws Exception {
         // WHEN
         ResultActions resultActions = mvc
                 .perform(post("/member/join")
@@ -77,9 +84,9 @@ public class MemberControllerTests {
 
         // THEN
         resultActions
-                .andExpect(handler().handlerType(MemberController.class))
-                .andExpect(handler().methodName("join"))
-                .andExpect(status().is3xxRedirection());
+                .andExpect(handler().handlerType(MemberController.class))   //위의 결과가 MemberController로 처리됐어야 함
+                .andExpect(handler().methodName("join"))    //join 메소드가 호출 됐어야 했다
+                .andExpect(status().is3xxRedirection());    //3xx로 코드가 처리 됐어야 한다
 
         Member member = memberService.findByUsername("user10").orElse(null);
 
@@ -197,5 +204,23 @@ public class MemberControllerTests {
         resultActions
                 .andExpect(status().is3xxRedirection()) //3xx가 나온 코드면 성공이다.
                 .andExpect(redirectedUrlPattern("/**"));
+    }
+
+    @Test
+    @DisplayName("로그인 후에 네비바에 유저명 보이게")
+    @WithUserDetails("user1")
+    void t006() throws Exception{
+        // WHEN
+        ResultActions resultActions = mvc
+                .perform(get("/member/me"))
+                .andDo(print());
+
+        // THEN
+        resultActions.andExpect(handler().handlerType(MemberController.class))
+                .andExpect(handler().methodName("showMe"))   //보여질페이지
+                .andExpect(status().is2xxSuccessful())
+                .andExpect(content().string(containsString("""
+                        user1님 환영합니다.
+                        """.stripIndent().trim())));
     }
 }
