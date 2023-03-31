@@ -2,15 +2,19 @@ package com.example.gramgram.boundedContext.member.controller;
 
 import com.example.gramgram.boundedContext.member.entity.Member;
 import com.example.gramgram.boundedContext.member.service.MemberService;
+import jakarta.servlet.http.HttpSession;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.autoconfigure.web.servlet.AutoConfigureMockMvc;
 import org.springframework.boot.test.context.SpringBootTest;
+import org.springframework.security.core.context.SecurityContext;
+import org.springframework.security.core.userdetails.User;
 import org.springframework.security.test.context.support.WithUserDetails;
 import org.springframework.test.annotation.Rollback;
 import org.springframework.test.context.ActiveProfiles;
 import org.springframework.test.web.servlet.MockMvc;
+import org.springframework.test.web.servlet.MvcResult;
 import org.springframework.test.web.servlet.ResultActions;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -173,16 +177,25 @@ public class MemberControllerTests {
     void t005() throws Exception {
         // WHEN
         ResultActions resultActions = mvc
-                .perform(post("/member/login")
+                .perform(post("/member/login")      // 이 주소에서
                         .with(csrf()) // CSRF 키 생성
-                        .param("username", "user1")
-                        .param("password", "1234")
+                        .param("username", "user1") //id는 이거
+                        .param("password", "1234")  //pw는 이걸 사용 했을때
                 )
                 .andDo(print());
 
+        //세션에 접근해 값을 가져와서
+        MvcResult mvcResult = resultActions.andReturn();
+        HttpSession session = mvcResult.getRequest().getSession(false);   //원래 getSession을 하면 값이 없을 경우 만들어서라도 준다
+                                                            //false는 없으면 없는대로 그냥 반환
+        SecurityContext securityContext = (SecurityContext)session.getAttribute("SPRING_SECURITY_CONTEXT");
+        User user = (User)securityContext.getAuthentication().getPrincipal();
+
+        assertThat(user.getUsername()).isEqualTo("user1");
+
         // THEN
         resultActions
-                .andExpect(status().is3xxRedirection())
+                .andExpect(status().is3xxRedirection()) //3xx가 나온 코드면 성공이다.
                 .andExpect(redirectedUrlPattern("/**"));
     }
 }

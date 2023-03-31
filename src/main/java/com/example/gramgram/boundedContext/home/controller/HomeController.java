@@ -18,7 +18,7 @@ public class HomeController {
 
     @GetMapping("/debugSession")
     @ResponseBody
-    public String showDebugSession(HttpSession session) {
+    public String showDebugSession(HttpSession session) {//세션 안의 값을 다 보여줌
         StringBuilder sb = new StringBuilder("Session content:\n");
 
         Enumeration<String> attributeNames = session.getAttributeNames();
@@ -28,6 +28,6 @@ public class HomeController {
             sb.append(String.format("%s: %s\n", attributeName, attributeValue));
         }
 
-        return sb.toString();
+        return sb.toString().replaceAll("\n", "<br>");
     }
 }
