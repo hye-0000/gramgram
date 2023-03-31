@@ -34,9 +34,9 @@ public class Member {
     public List<? extends GrantedAuthority> getGrantedAuthorities() {
         List<GrantedAuthority> grantedAuthorities = new ArrayList<>();
 
-        grantedAuthorities.add(new SimpleGrantedAuthority("member"));
+        grantedAuthorities.add(new SimpleGrantedAuthority("member"));   //모든 회원은 멤버 권한을 갖게 되고
 
-        if ("admin".equals(username)) {
+        if ("admin".equals(username)) {     //이름이 admin인 회원은 admin 권한을 갖게됨
             grantedAuthorities.add(new SimpleGrantedAuthority("admin"));
         }
 
