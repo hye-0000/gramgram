@@ -1,5 +1,6 @@
 package com.example.gramgram.boundedContext.member.service;
 
+import com.example.gramgram.base.rsData.RsData;
 import com.example.gramgram.boundedContext.member.entity.Member;
 import com.example.gramgram.boundedContext.member.repository.MemberRepository;
 import lombok.RequiredArgsConstructor;
@@ -22,14 +23,20 @@ public class MemberService {
         return memberRepository.findByUsername(username);
     }
 
-    @Transactional  //join은 insert를 유발하기 때문에
-    public Member join(String username, String password) {
+    @Transactional
+    public RsData<Member> join(String username, String password) {
+        if ( findByUsername(username).isPresent() ) {
+            return RsData.of("F-1", "해당 아이디(%s)는 이미 사용중입니다.".formatted(username));
+        }
+
         Member member = Member
                 .builder()
                 .username(username)
                 .password(passwordEncoder.encode(password))
                 .build();
 
-        return memberRepository.save(member);
+        memberRepository.save(member);
+
+        return RsData.of("S-1", "회원가입이 완료되었습니다.", member);
     }
 }

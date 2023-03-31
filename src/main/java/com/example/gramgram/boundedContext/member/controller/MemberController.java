@@ -1,5 +1,6 @@
 package com.example.gramgram.boundedContext.member.controller;
 
+import com.example.gramgram.base.rsData.RsData;
 import com.example.gramgram.boundedContext.member.entity.Member;
 import com.example.gramgram.boundedContext.member.service.MemberService;
 import com.example.gramgram.standard.util.Util;
@@ -44,9 +45,15 @@ public class MemberController {
     @PreAuthorize("isAnonymous()")
     @PostMapping("/join")
     public String join(@Valid JoinForm joinForm) {
-        memberService.join(joinForm.getUsername(), joinForm.getPassword());
+        RsData<Member> joinRs = memberService.join(joinForm.getUsername(), joinForm.getPassword());
 
-        return "redirect:/member/login?msg=" + Util.url.encode("회원가입이 완료되었습니다.\n로그인 후 이용해주세요.");
+        if (joinRs.isFail()) {
+            return "common/js";
+        }
+
+        String msg = joinRs.getMsg() + "\n로그인 후 이용해주세요.";
+
+        return "redirect:/member/login?msg=" + Util.url.encode(msg);
     }
 
     @PreAuthorize("isAnonymous()")
