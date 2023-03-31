@@ -1,7 +1,9 @@
 package com.example.gramgram.base.rq;
 
+import com.example.gramgram.base.rsData.RsData;
 import com.example.gramgram.boundedContext.member.entity.Member;
 import com.example.gramgram.boundedContext.member.service.MemberService;
+import com.example.gramgram.standard.util.Util;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
 import jakarta.servlet.http.HttpSession;
@@ -10,6 +12,8 @@ import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.security.core.userdetails.User;
 import org.springframework.stereotype.Component;
 import org.springframework.web.context.annotation.RequestScope;
+
+import java.util.Date;
 
 @Component
 @RequestScope   //매 요청마다 생성됨
@@ -65,5 +69,26 @@ public class Rq {
         req.setAttribute("localStorageKeyAboutHistoryBackErrorMsg", key);
         req.setAttribute("historyBackErrorMsg", msg);
         return "common/js";
+    }
+
+    public String historyBack(RsData rsData) {
+        return historyBack(rsData.getMsg());
+    }
+
+    public String redirectWithMsg(String url, RsData rsData) {
+        return redirectWithMsg(url, rsData.getMsg());
+    }
+
+    public String redirectWithMsg(String url, String msg) {
+        return "redirect:" + urlWithMsg(url, msg);
+    }
+
+    private String urlWithMsg(String url, String msg) {
+        // 기존 URL에 혹시 msg 파라미터가 있다면 그것을 지우고 새로 넣는다.
+        return Util.url.modifyQueryParam(url, "msg", msgWithTtl(msg));
+    }
+
+    private String msgWithTtl(String msg) {
+        return Util.url.encode(msg) + ";ttl=" + new Date().getTime();
     }
 }
