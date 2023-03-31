@@ -17,11 +17,7 @@ import java.util.Enumeration;
 public class HomeController {
     private final MemberService memberService;
     @GetMapping("/")
-    public String showMain(Model model, Principal principal) {
-        if (principal != null) {
-            Member loginedMember = memberService.findByUsername(principal.getName()).orElseThrow();
-            model.addAttribute("loginedMember", loginedMember);
-        }
+    public String showMain() {
         return "usr/home/main";
     }
 
