@@ -13,10 +13,11 @@ import org.springframework.test.web.servlet.ResultActions;
 import org.springframework.transaction.annotation.Transactional;
 
 import static org.hamcrest.Matchers.containsString;
+import static org.springframework.security.test.web.servlet.request.SecurityMockMvcRequestPostProcessors.csrf;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.get;
+import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.post;
 import static org.springframework.test.web.servlet.result.MockMvcResultHandlers.print;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.*;
-import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.content;
 
 @SpringBootTest // 스프링부트 관련 컴포넌트 테스트할 때 붙여야 함, Ioc 컨테이너 작동시킴
 @AutoConfigureMockMvc // http 요청, 응답 테스트
@@ -71,5 +72,26 @@ public class InstaMemberControllerTests {
                 .andExpect(handler().methodName("showConnect"))
                 .andExpect(status().is3xxRedirection())
                 .andExpect(redirectedUrlPattern("**/member/login**"));
+    }
+
+    @Test
+    @DisplayName("인스타회원 정보 입력 폼 처리")
+    @WithUserDetails("user1")
+    void t003() throws Exception {
+        // WHEN
+        ResultActions resultActions = mvc
+                .perform(post("/instaMember/connect")
+                        .with(csrf()) // CSRF 키 생성
+                        .param("username", "abc123")
+                        .param("gender", "W")
+                )
+                .andDo(print());
+
+        // THEN
+        resultActions
+                .andExpect(handler().handlerType(InstaMemberController.class))
+                .andExpect(handler().methodName("connect"))
+                .andExpect(status().is3xxRedirection())
+                .andExpect(redirectedUrlPattern("/pop**"));
     }
 }
